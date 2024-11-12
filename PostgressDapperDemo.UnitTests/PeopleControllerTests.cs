@@ -159,6 +159,38 @@ public class PeopleControllerTests
         Assert.Equal(StatusCodes.Status204NoContent, noContentResult.StatusCode);
     }
 
-    
+    [Fact]
+    public async Task GetPerson_ReturnsNotFound_WhenPersonDoesNotExists()
+    {
+        // arrange
+        int id = 3;
+        _personRepository.GetPersonByIdAsync(id).Returns((Person)null);
+
+        // act
+        var result = await _controller.GetPerson(id);
+
+        // assert
+        var notFoundResult = Assert.IsType<NotFoundResult>(result);
+        Assert.Equal(StatusCodes.Status404NotFound,notFoundResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetPerson_ReturnsOkObject_WithPerson()
+    {
+        // arrange
+        int id = 1;
+        var person = new Person { Id = id ,Name="John",Email="John@gmail.com"};
+        _personRepository.GetPersonByIdAsync(id).Returns(person);
+
+        // act
+        var result = await _controller.GetPerson(id);
+
+        // assert
+        var okObjectResult = Assert.IsType<OkObjectResult>(result);
+        var returnedPerson = Assert.IsType<PersonDisplayDto>(okObjectResult.Value);
+        Assert.Equal(person.Id, returnedPerson.Id);
+        Assert.Equal(person.Name, returnedPerson.Name);
+        Assert.Equal(person.Email, returnedPerson.Email);
+    }
 
 }
