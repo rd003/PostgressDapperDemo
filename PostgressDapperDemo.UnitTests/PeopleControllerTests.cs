@@ -131,6 +131,34 @@ public class PeopleControllerTests
     }
 
     [Fact]
-    public async Task Delete
+    public async Task DeletePerson_ReturnsNotFound_WhenPersonDoesNotExist()
+    {
+        // arrange
+        _personRepository.GetPersonByIdAsync(3).Returns((Person)null);
+
+        // act
+        var response = await _controller.DeletePerson(3);
+
+        // assert
+        var notFoundResult = Assert.IsType<NotFoundResult>(response);
+        Assert.Equal(StatusCodes.Status404NotFound, notFoundResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task DeletePerson_ReturnsNoContent_WhenSuccess()
+    {
+        // arrange
+        var person = people.First();
+        _personRepository.GetPersonByIdAsync(3).Returns(person);
+
+        // act
+        var response = await _controller.DeletePerson(3);
+
+        // assert
+        var noContentResult = Assert.IsType<NoContentResult>(response);
+        Assert.Equal(StatusCodes.Status204NoContent, noContentResult.StatusCode);
+    }
+
+    
 
 }
